@@ -8,12 +8,14 @@ class LibraryViewModel extends ChangeNotifier {
   List<Song> _likedSongs = [];
   List<String> _artists = [];
   List<String> _albums = [];
+  Map<String, List<Song>> _albumsMap = {}; // Map of album name to songs
   final MusicService _musicService = MusicService();
 
   List<Playlist> get userPlaylists => _userPlaylists;
   List<Song> get likedSongs => _likedSongs;
   List<String> get artists => _artists;
   List<String> get albums => _albums;
+  Map<String, List<Song>> get albumsMap => _albumsMap;
 
   LibraryViewModel() {
     _loadData();
@@ -31,14 +33,24 @@ class LibraryViewModel extends ChangeNotifier {
       // Extract unique artists and albums
       final uniqueArtists = <String>{};
       final uniqueAlbums = <String>{};
+      final albumSongsMap = <String, List<Song>>{};
       
       for (var track in trendingTracks) {
         uniqueArtists.add(track.artist);
+        
+        // Add album to unique albums list
         uniqueAlbums.add(track.album);
+        
+        // Group songs by album
+        if (!albumSongsMap.containsKey(track.album)) {
+          albumSongsMap[track.album] = [];
+        }
+        albumSongsMap[track.album]!.add(track);
       }
       
       _artists = uniqueArtists.toList();
       _albums = uniqueAlbums.toList();
+      _albumsMap = albumSongsMap;
       
       notifyListeners();
     } catch (e) {

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../viewmodels/library_viewmodel.dart';
+import '../../viewmodels/player_viewmodel.dart';
 import '../../core/constants.dart';
 import 'playlist_detail_screen.dart';
 
@@ -132,7 +133,9 @@ class _AlbumsTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final libraryViewModel = Provider.of<LibraryViewModel>(context);
+    final playerViewModel = Provider.of<PlayerViewModel>(context, listen: false);
     final albums = libraryViewModel.albums;
+    final albumsMap = libraryViewModel.albumsMap;
 
     return albums.isEmpty
         ? const Center(child: CircularProgressIndicator())
@@ -146,30 +149,90 @@ class _AlbumsTab extends StatelessWidget {
             ),
             itemCount: albums.length,
             itemBuilder: (context, index) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.grey[800],
-                        borderRadius: BorderRadius.circular(
-                          AppConstants.defaultRadius,
+              final albumName = albums[index];
+              final albumSongs = albumsMap[albumName] ?? [];
+              final songCount = albumSongs.length;
+              
+              return GestureDetector(
+                onTap: () {
+                  // Play the first song in the album when tapped
+                  if (albumSongs.isNotEmpty) {
+                    playerViewModel.playSong(albumSongs.first);
+                    
+                    // Show a snackbar to indicate the song is playing
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Playing ${albumSongs.first.title} from $albumName'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                  }
+                },
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.grey[800],
+                          borderRadius: BorderRadius.circular(
+                            AppConstants.defaultRadius,
+                          ),
+                          image: DecorationImage(
+                            image: NetworkImage(
+                              // Use the cover URL from the first song in the album if available
+                              albumSongs.isNotEmpty && albumSongs.first.coverUrl.isNotEmpty
+                                  ? albumSongs.first.coverUrl
+                                  : 'https://placehold.co/300/303030/FFFFFF?text=${Uri.encodeComponent(albumName)}',
+                            ),
+                            fit: BoxFit.cover,
+                            onError: (exception, stackTrace) {
+                              // Handle image loading errors by showing a placeholder
+                            },
+                          ),
+                        ),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(
+                              AppConstants.defaultRadius,
+                            ),
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.transparent,
+                                Colors.black.withOpacity(0.7),
+                              ],
+                            ),
+                          ),
+                          child: Center(
+                            child: Icon(
+                              Icons.play_circle,
+                              color: Colors.white.withOpacity(0.8),
+                              size: 40,
+                            ),
+                          ),
                         ),
                       ),
-                      child: const Center(
-                        child: Icon(Icons.album, size: 50, color: Colors.grey),
-                      ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    albums[index],
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
+                    const SizedBox(height: 8),
+                    Text(
+                      albumName,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      '$songCount songs',
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
               );
             },
           );
