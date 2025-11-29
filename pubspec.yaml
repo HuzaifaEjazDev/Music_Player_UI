@@ -35,6 +35,7 @@ dependencies:
   just_audio: ^0.9.36
   flutter_animate: ^4.5.0
   glassmorphism: ^3.0.0
+  http: ^1.2.0
 
 dev_dependencies:
   flutter_test:

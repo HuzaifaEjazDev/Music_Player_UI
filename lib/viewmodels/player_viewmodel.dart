@@ -34,11 +34,15 @@ class PlayerViewModel extends ChangeNotifier {
 
   Future<void> playSong(Song song) async {
     _currentSong = song;
-    // In a real app, we would load the audio URL here.
-    // await _audioPlayer.setUrl(song.audioUrl);
-    // For demo purposes, we just simulate playing state
-    _isPlaying = true;
-    notifyListeners();
+    try {
+      // Set the audio URL from the song model and play
+      await _audioPlayer.setUrl(song.audioUrl);
+      await _audioPlayer.play();
+      _isPlaying = true;
+      notifyListeners();
+    } catch (e) {
+      print('Error playing song: $e');
+    }
   }
 
   void togglePlayPause() {

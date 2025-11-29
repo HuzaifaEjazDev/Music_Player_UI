@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import '../models/playlist_model.dart';
 import '../models/song_model.dart';
+import '../services/music_service.dart';
 
 class LibraryViewModel extends ChangeNotifier {
   List<Playlist> _userPlaylists = [];
   List<Song> _likedSongs = [];
   List<String> _artists = [];
   List<String> _albums = [];
+  final MusicService _musicService = MusicService();
 
   List<Playlist> get userPlaylists => _userPlaylists;
   List<Song> get likedSongs => _likedSongs;
@@ -14,7 +16,36 @@ class LibraryViewModel extends ChangeNotifier {
   List<String> get albums => _albums;
 
   LibraryViewModel() {
-    _loadDummyData();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    try {
+      // Load trending playlists from Audius API
+      _userPlaylists = await _musicService.fetchTrendingPlaylists();
+      
+      // Load trending tracks to use for liked songs and extract artists/albums
+      final trendingTracks = await _musicService.fetchTrendingTracks();
+      _likedSongs = trendingTracks;
+      
+      // Extract unique artists and albums
+      final uniqueArtists = <String>{};
+      final uniqueAlbums = <String>{};
+      
+      for (var track in trendingTracks) {
+        uniqueArtists.add(track.artist);
+        uniqueAlbums.add(track.album);
+      }
+      
+      _artists = uniqueArtists.toList();
+      _albums = uniqueAlbums.toList();
+      
+      notifyListeners();
+    } catch (e) {
+      print('Error loading library data: $e');
+      // Fallback to dummy data if API fails
+      _loadDummyData();
+    }
   }
 
   void _loadDummyData() {

@@ -49,6 +49,12 @@ class HomeScreen extends StatelessWidget {
                   );
                 },
               ),
+              IconButton(
+                icon: const Icon(Icons.developer_mode),
+                onPressed: () {
+                  Navigator.pushNamed(context, '/api-test');
+                },
+              ),
               const SizedBox(width: 10),
             ],
           ),
@@ -102,13 +108,13 @@ class HomeScreen extends StatelessWidget {
                               errorBuilder: (context, error, stackTrace) =>
                                   Container(
                                     height: 140,
-                                    width: 140,
-                                    color: Colors.grey[800],
-                                    child: const Icon(
-                                      Icons.music_note,
-                                      size: 50,
-                                    ),
-                                  ),
+                                width: 140,
+                                color: Colors.grey[800],
+                                child: const Icon(
+                                  Icons.music_note,
+                                  size: 50,
+                                ),
+                              ),
                             ),
                           ),
                           const SizedBox(height: 8),

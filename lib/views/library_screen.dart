@@ -43,45 +43,58 @@ class _PlaylistsTab extends StatelessWidget {
     final libraryViewModel = Provider.of<LibraryViewModel>(context);
     final playlists = libraryViewModel.userPlaylists;
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(AppConstants.defaultPadding),
-      itemCount: playlists.length,
-      itemBuilder: (context, index) {
-        final playlist = playlists[index];
-        return ListTile(
-          contentPadding: const EdgeInsets.symmetric(vertical: 8),
-          leading: ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: Image.network(
-              playlist.coverUrl,
-              width: 56,
-              height: 56,
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => Container(
-                width: 56,
-                height: 56,
-                color: Colors.grey[800],
-                child: const Icon(Icons.music_note),
-              ),
-            ),
-          ),
-          title: Text(
-            playlist.name,
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          subtitle: Text('${playlist.songs.length} songs'),
-          trailing: const Icon(Icons.chevron_right),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => PlaylistDetailScreen(playlist: playlist),
-              ),
-            );
-          },
-        );
-      },
-    );
+    return playlists.isEmpty
+        ? const Center(child: CircularProgressIndicator())
+        : ListView.builder(
+            padding: const EdgeInsets.all(AppConstants.defaultPadding),
+            itemCount: playlists.length,
+            itemBuilder: (context, index) {
+              final playlist = playlists[index];
+              return ListTile(
+                contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                leading: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.network(
+                    playlist.coverUrl,
+                    width: 56,
+                    height: 56,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      width: 56,
+                      height: 56,
+                      color: Colors.grey[800],
+                      child: const Icon(Icons.music_note),
+                    ),
+                    loadingBuilder: (context, child, loadingProgress) {
+                      if (loadingProgress == null) return child;
+                      return Container(
+                        width: 56,
+                        height: 56,
+                        color: Colors.grey[800],
+                        child: const Center(
+                          child: CircularProgressIndicator(),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+                title: Text(
+                  playlist.name,
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                subtitle: Text('${playlist.songs.length} songs'),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => PlaylistDetailScreen(playlist: playlist),
+                    ),
+                  );
+                },
+              );
+            },
+          );
   }
 }
 
@@ -93,21 +106,23 @@ class _ArtistsTab extends StatelessWidget {
     final libraryViewModel = Provider.of<LibraryViewModel>(context);
     final artists = libraryViewModel.artists;
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(AppConstants.defaultPadding),
-      itemCount: artists.length,
-      itemBuilder: (context, index) {
-        return ListTile(
-          leading: CircleAvatar(
-            backgroundColor: Colors.grey[800],
-            child: Text(artists[index][0]),
-          ),
-          title: Text(artists[index]),
-          trailing: const Icon(Icons.chevron_right),
-          onTap: () {},
-        );
-      },
-    );
+    return artists.isEmpty
+        ? const Center(child: CircularProgressIndicator())
+        : ListView.builder(
+            padding: const EdgeInsets.all(AppConstants.defaultPadding),
+            itemCount: artists.length,
+            itemBuilder: (context, index) {
+              return ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: Colors.grey[800],
+                  child: Text(artists[index][0]),
+                ),
+                title: Text(artists[index]),
+                trailing: const Icon(Icons.chevron_right),
+                onTap: () {},
+              );
+            },
+          );
   }
 }
 
@@ -119,42 +134,44 @@ class _AlbumsTab extends StatelessWidget {
     final libraryViewModel = Provider.of<LibraryViewModel>(context);
     final albums = libraryViewModel.albums;
 
-    return GridView.builder(
-      padding: const EdgeInsets.all(AppConstants.defaultPadding),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
-        childAspectRatio: 0.8,
-      ),
-      itemCount: albums.length,
-      itemBuilder: (context, index) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey[800],
-                  borderRadius: BorderRadius.circular(
-                    AppConstants.defaultRadius,
+    return albums.isEmpty
+        ? const Center(child: CircularProgressIndicator())
+        : GridView.builder(
+            padding: const EdgeInsets.all(AppConstants.defaultPadding),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 16,
+              mainAxisSpacing: 16,
+              childAspectRatio: 0.8,
+            ),
+            itemCount: albums.length,
+            itemBuilder: (context, index) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[800],
+                        borderRadius: BorderRadius.circular(
+                          AppConstants.defaultRadius,
+                        ),
+                      ),
+                      child: const Center(
+                        child: Icon(Icons.album, size: 50, color: Colors.grey),
+                      ),
+                    ),
                   ),
-                ),
-                child: const Center(
-                  child: Icon(Icons.album, size: 50, color: Colors.grey),
-                ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              albums[index],
-              style: const TextStyle(fontWeight: FontWeight.bold),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
-        );
-      },
-    );
+                  const SizedBox(height: 8),
+                  Text(
+                    albums[index],
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              );
+            },
+          );
   }
 }

@@ -5,6 +5,7 @@ import 'viewmodels/player_viewmodel.dart';
 import 'viewmodels/home_viewmodel.dart';
 import 'viewmodels/library_viewmodel.dart';
 import 'views/main_screen.dart';
+import 'services/api_test.dart';
 
 void main() {
   runApp(const MyApp());
@@ -26,6 +27,9 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         theme: AppTheme.darkTheme,
         home: const MainScreen(),
+        routes: {
+          '/api-test': (context) => ApiTestScreen(),
+        },
       ),
     );
   }

@@ -1,16 +1,34 @@
 import 'package:flutter/material.dart';
 import '../models/song_model.dart';
 import '../models/playlist_model.dart';
+import '../services/music_service.dart';
 
 class HomeViewModel extends ChangeNotifier {
   List<Song> _recentlyPlayed = [];
   List<Playlist> _playlists = [];
+  final MusicService _musicService = MusicService();
 
   List<Song> get recentlyPlayed => _recentlyPlayed;
   List<Playlist> get playlists => _playlists;
 
   HomeViewModel() {
-    _loadDummyData();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    try {
+      // Load trending tracks from Audius API
+      _recentlyPlayed = await _musicService.fetchTrendingTracks();
+      
+      // Load trending playlists from Audius API
+      _playlists = await _musicService.fetchTrendingPlaylists();
+      
+      notifyListeners();
+    } catch (e) {
+      print('Error loading data: $e');
+      // Fallback to dummy data if API fails
+      _loadDummyData();
+    }
   }
 
   void _loadDummyData() {
@@ -60,5 +78,15 @@ class HomeViewModel extends ChangeNotifier {
     ];
     
     notifyListeners();
+  }
+  
+  // Method to search tracks
+  Future<List<Song>> searchTracks(String query) async {
+    try {
+      return await _musicService.searchTracks(query);
+    } catch (e) {
+      print('Error searching tracks: $e');
+      return [];
+    }
   }
 }
