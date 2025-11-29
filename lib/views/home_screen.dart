@@ -52,7 +52,7 @@ class HomeScreen extends StatelessWidget {
               IconButton(
                 icon: const Icon(Icons.developer_mode),
                 onPressed: () {
-                  Navigator.pushNamed(context, '/api-test');
+                  Navigator.pushNamed(context, '/api-debug');
                 },
               ),
               const SizedBox(width: 10),
@@ -107,7 +107,7 @@ class HomeScreen extends StatelessWidget {
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) =>
                                   Container(
-                                    height: 140,
+                                height: 140,
                                 width: 140,
                                 color: Colors.grey[800],
                                 child: const Icon(
